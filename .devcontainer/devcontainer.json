@@ -1,0 +1,21 @@
+{
+  "name": "workspace",
+  "dockerComposeFile": ["docker-compose.yml"],
+  "service": "workspace",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "vscode",
+  "shutdownAction": "stopCompose",
+  "settings": {
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/.docker": true
+    },
+    "thunder-client.saveToWorkspace": true
+  },
+  "extensions": [
+    "PKief.material-icon-theme",
+    "esbenp.prettier-vscode",
+    "rangav.vscode-thunder-client",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}

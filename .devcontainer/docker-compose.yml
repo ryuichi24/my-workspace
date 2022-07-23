@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  workspace:
+    container_name: my-workspace-container
+    build:
+      context: ./docker/workspace
+      args:
+        USERNAME: ${USERNAME:-vscode}
+        USER_GROUP_NAME: ${USER_GROUP_NAME:-workspace}
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+        TMP_PKG: ${TMP_PKG}
+    tty: true
+    volumes:
+      - ../:/workspace:cached
+    working_dir: /workspace
+    ports:
+      - "5555:5555"
