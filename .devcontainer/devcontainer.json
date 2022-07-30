@@ -2,7 +2,7 @@
   "name": "workspace",
   "dockerComposeFile": ["docker-compose.yml"],
   "service": "workspace",
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "/home/vscode/workspace",
   "remoteUser": "vscode",
   "shutdownAction": "stopCompose",
   "settings": {

@@ -5,31 +5,50 @@ ARG USER_GROUP_NAME
 ARG USER_UID
 ARG USER_GID
 ARG TMP_PKG
-ARG HOME="/home/${USERNAME}"
 
+ARG HOME=/home/${USERNAME}
+
+# timezone
+ARG TIME_ZONE=Asia/Tokyo
+
+# general packages
 ENV PKG="git vim curl locales ${TMP_PKG}"
 
+# dependencies for pyenv
+ARG PYENV_DEP="make build-essential libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev wget llvm libncurses5-dev \
+    libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python3-openssl"
+
+# default python version
+ARG PYTHON_VERSION=3.10.5
 
 RUN apt-get update \
     && apt-get install -y ${PKG} \
     && groupadd --gid ${USER_GID} ${USER_GROUP_NAME} \
     && useradd --uid ${USER_UID} --shell /bin/bash --gid ${USER_GID} -m ${USERNAME} \
     && apt-get install -y sudo \
-    && echo %${USER_GROUP_NAME} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${USER_GROUP_NAME} \
-    && chmod 0440 /etc/sudoers.d/${USER_GROUP_NAME}
-
-# setup locale https://stackoverflow.com/a/55077451/13723015
-RUN echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
+    && echo %${USER_GROUP_NAME} ALL=\(ALL\) NOPASSWD:ALL > /etc/sudoers.d/${USER_GROUP_NAME} \
+    && chmod 0440 /etc/sudoers.d/${USER_GROUP_NAME} \
+    # setup locale https://stackoverflow.com/a/55077451/13723015
+    && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && echo "LANG=en_US.UTF-8" > /etc/locale.conf \
-    && locale-gen en_US.UTF-8
+    && locale-gen en_US.UTF-8 \
+    # setup timezone https://dev.to/grigorkh/fix-tzdata-hangs-during-docker-image-build-4o9m
+    && ln -snf /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime && echo ${TIME_ZONE} > /etc/timezone \
+    # install pyenv https://k0nze.dev/posts/install-pyenv-venv-vscode/
+    && apt-get install -y --no-install-recommends ${PYENV_DEP} \
+    && git clone https://github.com/pyenv/pyenv.git ${HOME}/.pyenv \
+    # https://teratail.com/questions/375796
+    && chown -hR ${USERNAME}:${USER_GROUP_NAME} ${HOME}/.pyenv \
+    && echo 'export PYENV_ROOT="${HOME}/.pyenv"' >> ${HOME}/.bashrc \
+    && echo 'export PATH="${PYENV_ROOT}/bin:${PATH}"' >> ${HOME}/.bashrc \
+    && echo 'eval "$(pyenv init --path)"' >> ${HOME}/.bashrc
 
-# install pyenv https://github.com/pyenv/pyenv#installation
-RUN git clone https://github.com/pyenv/pyenv.git ~/.pyenv \
-    && echo 'export PYENV_ROOT="~/.pyenv"' >> ${HOME}/.bashrc \
-    && echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ${HOME}/.bashrc \
-    && echo 'eval "$(pyenv init -)"' >> ${HOME}/.bashrc \
-    && echo 'export PYENV_ROOT="~/.pyenv"' >> ${HOME}/.profile \
-    && echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ${HOME}/.profile \
-    && echo 'eval "$(pyenv init -)"' >> ${HOME}/.profile
+USER ${USERNAME}
 
+RUN export PYENV_ROOT="${HOME}/.pyenv" \
+    && export PATH="${PYENV_ROOT}/bin:${PATH}" \
+    && eval "$(pyenv init --path)" \
+    && pyenv install ${PYTHON_VERSION} \
+    && pyenv global ${PYTHON_VERSION}

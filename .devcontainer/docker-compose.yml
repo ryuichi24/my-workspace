@@ -11,9 +11,10 @@ services:
         USER_UID: ${USER_UID:-1000}
         USER_GID: ${USER_GID:-1000}
         TMP_PKG: ${TMP_PKG}
+        TIME_ZONE: ${TIME_ZONE:-Asia/Tokyo}
     tty: true
     volumes:
-      - ../:/workspace:cached
+      - ../:/home/${USERNAME:-vscode}/workspace:cached
     working_dir: /workspace
     ports:
       - "5555:5555"
