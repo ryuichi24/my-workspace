@@ -13,9 +13,14 @@
     "thunder-client.saveToWorkspace": true
   },
   "extensions": [
-    "PKief.material-icon-theme",
-    "esbenp.prettier-vscode",
-    "rangav.vscode-thunder-client",
-    "streetsidesoftware.code-spell-checker"
-  ]
+	"PKief.material-icon-theme",
+	"esbenp.prettier-vscode",
+	"rangav.vscode-thunder-client",
+	"streetsidesoftware.code-spell-checker",
+  // java
+	"vscjava.vscode-java-pack",
+	"vscjava.vscode-spring-initializr",
+	"vscjava.vscode-gradle",
+	"mathiasfrohlich.Kotlin"
+]
 }

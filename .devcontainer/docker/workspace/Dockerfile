@@ -8,7 +8,7 @@ ARG TMP_PKG
 ARG HOME=/home/${USERNAME}
 
 # general packages
-ARG PKG="git vim curl locales ${TMP_PKG}"
+ARG PKG="git vim curl zip unzip locales ${TMP_PKG}"
 
 RUN apt-get update \
     && apt-get install -y ${PKG} \
@@ -16,7 +16,9 @@ RUN apt-get update \
     && useradd --uid ${USER_UID} --shell /bin/bash --gid ${USER_GID} -m ${USERNAME} \
     && apt-get install -y sudo \
     && echo %${USER_GROUP_NAME} ALL=\(ALL\) NOPASSWD:ALL > /etc/sudoers.d/${USER_GROUP_NAME} \
-    && chmod 0440 /etc/sudoers.d/${USER_GROUP_NAME}
+    && chmod 0440 /etc/sudoers.d/${USER_GROUP_NAME} \
+    # set bash https://stackoverflow.com/a/25423366/13723015
+    && rm /bin/sh && ln -s /bin/bash /bin/sh
 
 # setup locale https://stackoverflow.com/a/55077451/13723015
 RUN echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
@@ -53,3 +55,10 @@ RUN export PYENV_ROOT="${HOME}/.pyenv" \
     && eval "$(pyenv init --path)" \
     && pyenv install ${PYTHON_VERSION} \
     && pyenv global ${PYTHON_VERSION}
+
+# ---------------------------------- sdkman ----------------------------------
+# https://sdkman.io/install
+ARG JAVA_VERSION=18.0.2-amzn
+RUN curl -s "https://get.sdkman.io" | bash \
+    && source "$HOME/.sdkman/bin/sdkman-init.sh" \
+    && sdk install java ${JAVA_VERSION}
