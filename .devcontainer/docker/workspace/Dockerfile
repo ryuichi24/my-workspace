@@ -5,22 +5,10 @@ ARG USER_GROUP_NAME
 ARG USER_UID
 ARG USER_GID
 ARG TMP_PKG
-
 ARG HOME=/home/${USERNAME}
 
-# timezone
-ARG TIME_ZONE=Asia/Tokyo
-
 # general packages
-ENV PKG="git vim curl locales ${TMP_PKG}"
-
-# dependencies for pyenv
-ARG PYENV_DEP="make build-essential libssl-dev zlib1g-dev \
-    libbz2-dev libreadline-dev libsqlite3-dev wget llvm libncurses5-dev \
-    libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python3-openssl"
-
-# default python version
-ARG PYTHON_VERSION=3.10.5
+ARG PKG="git vim curl locales ${TMP_PKG}"
 
 RUN apt-get update \
     && apt-get install -y ${PKG} \
@@ -28,16 +16,26 @@ RUN apt-get update \
     && useradd --uid ${USER_UID} --shell /bin/bash --gid ${USER_GID} -m ${USERNAME} \
     && apt-get install -y sudo \
     && echo %${USER_GROUP_NAME} ALL=\(ALL\) NOPASSWD:ALL > /etc/sudoers.d/${USER_GROUP_NAME} \
-    && chmod 0440 /etc/sudoers.d/${USER_GROUP_NAME} \
-    # setup locale https://stackoverflow.com/a/55077451/13723015
-    && echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
+    && chmod 0440 /etc/sudoers.d/${USER_GROUP_NAME}
+
+# setup locale https://stackoverflow.com/a/55077451/13723015
+RUN echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && echo "LANG=en_US.UTF-8" > /etc/locale.conf \
-    && locale-gen en_US.UTF-8 \
-    # setup timezone https://dev.to/grigorkh/fix-tzdata-hangs-during-docker-image-build-4o9m
-    && ln -snf /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime && echo ${TIME_ZONE} > /etc/timezone \
-    # install pyenv https://k0nze.dev/posts/install-pyenv-venv-vscode/
-    && apt-get install -y --no-install-recommends ${PYENV_DEP} \
+    && locale-gen en_US.UTF-8
+
+# setup timezone https://dev.to/grigorkh/fix-tzdata-hangs-during-docker-image-build-4o9m
+ARG TIME_ZONE
+RUN ln -snf /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime && echo ${TIME_ZONE} > /etc/timezone
+
+# ---------------------------------- pyenv ----------------------------------
+# dependencies for pyenv
+ARG PYENV_DEP="make build-essential libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev wget llvm libncurses5-dev \
+    libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python3-openssl"
+
+# install pyenv https://k0nze.dev/posts/install-pyenv-venv-vscode/
+RUN apt-get install -y --no-install-recommends ${PYENV_DEP} \
     && git clone https://github.com/pyenv/pyenv.git ${HOME}/.pyenv \
     # https://teratail.com/questions/375796
     && chown -hR ${USERNAME}:${USER_GROUP_NAME} ${HOME}/.pyenv \
@@ -46,6 +44,9 @@ RUN apt-get update \
     && echo 'eval "$(pyenv init --path)"' >> ${HOME}/.bashrc
 
 USER ${USERNAME}
+
+# default python version
+ARG PYTHON_VERSION=3.10.5
 
 RUN export PYENV_ROOT="${HOME}/.pyenv" \
     && export PATH="${PYENV_ROOT}/bin:${PATH}" \
