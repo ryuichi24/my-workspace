@@ -5,7 +5,6 @@ ARG USER_GROUP_NAME
 ARG USER_UID
 ARG USER_GID
 ARG TMP_PKG
-ARG HOME=/home/${USERNAME}
 
 # general packages
 ARG PKG="git vim curl zip unzip locales ${TMP_PKG}"
@@ -36,29 +35,32 @@ ARG PYENV_DEP="make build-essential libssl-dev zlib1g-dev \
     libbz2-dev libreadline-dev libsqlite3-dev wget llvm libncurses5-dev \
     libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python3-openssl"
 
-# install pyenv https://k0nze.dev/posts/install-pyenv-venv-vscode/
-RUN apt-get install -y --no-install-recommends ${PYENV_DEP} \
-    && git clone https://github.com/pyenv/pyenv.git ${HOME}/.pyenv \
-    # https://teratail.com/questions/375796
-    && chown -hR ${USERNAME}:${USER_GROUP_NAME} ${HOME}/.pyenv \
-    && echo 'export PYENV_ROOT="${HOME}/.pyenv"' >> ${HOME}/.bashrc \
-    && echo 'export PATH="${PYENV_ROOT}/bin:${PATH}"' >> ${HOME}/.bashrc \
-    && echo 'eval "$(pyenv init --path)"' >> ${HOME}/.bashrc
-
-USER ${USERNAME}
-
 # default python version
 ARG PYTHON_VERSION=3.10.5
 
-RUN export PYENV_ROOT="${HOME}/.pyenv" \
-    && export PATH="${PYENV_ROOT}/bin:${PATH}" \
-    && eval "$(pyenv init --path)" \
-    && pyenv install ${PYTHON_VERSION} \
-    && pyenv global ${PYTHON_VERSION}
+ENV PYENV_ROOT=${HOME}/.pyenv
+
+RUN apt-get install -y --no-install-recommends ${PYENV_DEP} \
+    && su ${USERNAME} --command \
+    # install pyenv https://k0nze.dev/posts/install-pyenv-venv-vscode
+    ' \
+    git clone https://github.com/pyenv/pyenv.git ${HOME}/.pyenv \
+    && echo "export PYENV_ROOT=\${HOME}/.pyenv" >> ${HOME}/.bashrc \
+    && echo "export PATH=\${PYENV_ROOT}/bin:\${PATH}" >> ${HOME}/.bashrc \
+    && echo "eval \"\$(pyenv init --path)\"" >> ${HOME}/.bashrc \
+    && export PYENV_ROOT=${HOME}/.pyenv \
+    && export PATH=${PYENV_ROOT}/bin:${PATH} \
+    && pyenv install "${PYTHON_VERSION}" \
+    && pyenv global "${PYTHON_VERSION}" \
+    '
 
 # ---------------------------------- sdkman ----------------------------------
 # https://sdkman.io/install
 ARG JAVA_VERSION=18.0.2-amzn
-RUN curl -s "https://get.sdkman.io" | bash \
-    && source "$HOME/.sdkman/bin/sdkman-init.sh" \
-    && sdk install java ${JAVA_VERSION}
+ARG GRADLE_VERSION="7.5"
+
+RUN su ${USERNAME} --command \
+    'curl -s "https://get.sdkman.io" | bash \
+    && source "${HOME}/.sdkman/bin/sdkman-init.sh" \
+    && sdk install java "${JAVA_VERSION}" \
+    && sdk install gradle ${GRADLE_VERSION}'
