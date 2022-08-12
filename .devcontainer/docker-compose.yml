@@ -13,8 +13,61 @@ services:
         TMP_PKG: ${TMP_PKG}
         TIME_ZONE: ${TIME_ZONE:-Asia/Tokyo}
     tty: true
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-dev}
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
     volumes:
       - ../:/home/${USERNAME:-vscode}/workspace:cached
     working_dir: /workspace
+    networks:
+      - internal
+      - external
     ports:
-      - "5555:5555"
+      - 5555:5555
+
+  postgres:
+    container_name: postgres-container
+    image: postgres:10
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-dev}
+    volumes:
+      - ../.docker/postgres:/var/lib/postgresql/data/
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    networks:
+      - internal
+      - external
+    restart: unless-stopped
+
+  pgadmin4:
+    container_name: pgadmin-container
+    restart: always
+    image: dpage/pgadmin4:6.12
+    # https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html#environment-variables
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-password}
+    volumes:
+      - ../.docker/pgamin4_data:/var/lib/pgadmin
+    ports:
+      - 8888:80
+    networks:
+      - internal
+      - external
+    depends_on:
+      - postgres
+
+# https://www.timedia.co.jp/tech/20220628-tech/
+networks:
+  internal:
+    driver: bridge
+    internal: true
+  external:
+    driver: bridge
+    internal: false
