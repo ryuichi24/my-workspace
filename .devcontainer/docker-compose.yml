@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   workspace:
-    container_name: my-workspace-container
+    container_name: ${PROJECT_NAME:-default}-workspace-container
     build:
       context: ./docker/workspace
       args:
@@ -30,7 +30,7 @@ services:
       - 5555:5555
 
   postgres:
-    container_name: postgres-container
+    container_name: ${PROJECT_NAME:-default}-postgres-container
     image: postgres:10
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -46,7 +46,7 @@ services:
     restart: unless-stopped
 
   pgadmin4:
-    container_name: pgadmin-container
+    container_name: ${PROJECT_NAME:-default}-pgadmin-container
     restart: always
     image: dpage/pgadmin4:6.12
     # https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html#environment-variables
