@@ -14,7 +14,6 @@
   },
   "extensions": [
     // Util
-    "PKief.material-icon-theme",
     "esbenp.prettier-vscode",
     "rangav.vscode-thunder-client",
     "streetsidesoftware.code-spell-checker",
@@ -23,6 +22,7 @@
     "vscjava.vscode-java-pack",
     "vscjava.vscode-spring-initializr",
     "vscjava.vscode-gradle",
-    "mathiasfrohlich.Kotlin"
+    // database
+    "mtxr.sqltools"
   ]
 }
