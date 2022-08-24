@@ -9,15 +9,15 @@ ARG TMP_PKG
 # general packages
 ARG PKG="git vim curl zip unzip locales ${TMP_PKG}"
 
+SHELL ["/bin/bash", "-c"]
+
 RUN apt-get update \
     && apt-get install -y ${PKG} \
     && groupadd --gid ${USER_GID} ${USER_GROUP_NAME} \
     && useradd --uid ${USER_UID} --shell /bin/bash --gid ${USER_GID} -m ${USERNAME} \
     && apt-get install -y sudo \
     && echo %${USER_GROUP_NAME} ALL=\(ALL\) NOPASSWD:ALL > /etc/sudoers.d/${USER_GROUP_NAME} \
-    && chmod 0440 /etc/sudoers.d/${USER_GROUP_NAME} \
-    # set bash https://stackoverflow.com/a/25423366/13723015
-    && rm /bin/sh && ln -s /bin/bash /bin/sh
+    && chmod 0440 /etc/sudoers.d/${USER_GROUP_NAME}
 
 # setup locale https://stackoverflow.com/a/55077451/13723015
 RUN echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
@@ -64,3 +64,4 @@ RUN su ${USERNAME} --command \
     && source "${HOME}/.sdkman/bin/sdkman-init.sh" \
     && sdk install java "${JAVA_VERSION}" \
     && sdk install gradle ${GRADLE_VERSION}'
+   
