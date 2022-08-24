@@ -64,4 +64,13 @@ RUN su ${USERNAME} --command \
     && source "${HOME}/.sdkman/bin/sdkman-init.sh" \
     && sdk install java "${JAVA_VERSION}" \
     && sdk install gradle ${GRADLE_VERSION}'
-   
+
+# ---------------------------------- nvm ----------------------------------
+ARG NODE_VERSION=v18.7.0
+
+RUN su ${USERNAME} --command \
+    'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash \
+    && source ~/.nvm/nvm.sh \
+    && nvm install "${NODE_VERSION}" \
+    && nvm alias default "${NODE_VERSION}" \
+    && nvm use default'
