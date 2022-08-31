@@ -10,7 +10,9 @@
       "**/node_modules": true,
       "**/.docker": true
     },
-    "thunder-client.saveToWorkspace": true
+    "thunder-client.saveToWorkspace": true,
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "git.mergeEditor": false
   },
   "extensions": [
     // Util
