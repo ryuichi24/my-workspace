@@ -14,7 +14,6 @@ services:
         TIME_ZONE: ${TIME_ZONE:-Asia/Tokyo}
     tty: true
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-dev}
