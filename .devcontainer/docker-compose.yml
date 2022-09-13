@@ -14,11 +14,11 @@ services:
         TIME_ZONE: ${TIME_ZONE:-Asia/Tokyo}
     tty: true
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-dev}
-      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
-      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-dev}
+      POSTGRES_HOST: ${DB_HOST:-postgres}
+      POSTGRES_PORT: ${DB_PORT:-5432}
     volumes:
       - ../:/home/${USERNAME:-vscode}/workspace:cached
     working_dir: /workspace
@@ -32,13 +32,13 @@ services:
     container_name: ${PROJECT_NAME:-default}-postgres-container
     image: postgres:10
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-dev}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-dev}
     volumes:
       - ../.docker/postgres:/var/lib/postgresql/data/
     ports:
-      - ${POSTGRES_PORT:-5432}:5432
+      - ${DB_PORT:-5432}:5432
     networks:
       - internal
       - external
@@ -68,7 +68,7 @@ services:
     image: mysql:8.0
     command: --default-authentication-plugin=mysql_native_password
     ports:
-      - 3306:3306
+      - ${DB_PORT:-3306}:3306
     volumes:
       # - ./docker/mysql/init-tables.sql:/docker-entrypoint-initdb.d/init-tables.sql
       - ../.docker/mysql_data:/var/lib/mysql
