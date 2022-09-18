@@ -81,6 +81,23 @@ services:
       - internal
       - external
 
+  rabbitMQ:
+    image: rabbitmq:3.9.13-management-alpine
+    container_name: ${PROJECT_NAME:-default}-rabbitMQ-container
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ../.docker/rabbitmqdata:/var/lib/rabbitmq
+      - ../.docker/rabbitmqlog:/var/log/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+    hostname: rabbitmq
+    networks:
+      - internal
+      - external
+
 # https://www.timedia.co.jp/tech/20220628-tech/
 networks:
   internal:
