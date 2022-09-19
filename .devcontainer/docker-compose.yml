@@ -91,8 +91,8 @@ services:
       - ../.docker/rabbitmqdata:/var/lib/rabbitmq
       - ../.docker/rabbitmqlog:/var/log/rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: "rabbitmq"
-      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-rabbitmq}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-rabbitmq}
     hostname: rabbitmq
     networks:
       - internal
