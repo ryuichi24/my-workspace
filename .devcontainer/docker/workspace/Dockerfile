@@ -73,3 +73,6 @@ RUN su ${USERNAME} --command \
     && nvm install "${NODE_VERSION}" \
     && nvm alias default "${NODE_VERSION}" \
     && nvm use default'
+
+RUN su ${USERNAME} --command \
+    'git config --global --add safe.directory "/home/${USERNAME}/workspace"'
