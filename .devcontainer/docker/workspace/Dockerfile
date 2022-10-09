@@ -18,6 +18,11 @@ RUN apt-get update \
     && echo %${USER_GROUP_NAME} ALL=\(ALL\) NOPASSWD:ALL > /etc/sudoers.d/${USER_GROUP_NAME} \
     && chmod 0440 /etc/sudoers.d/${USER_GROUP_NAME}
 
+# enable git
+# https://github.com/devcontainers/cli/issues/98
+RUN su ${USERNAME} --command \
+    'sudo git config --system --add safe.directory "/home/${USERNAME}/workspace"'
+
 # setup locale https://stackoverflow.com/a/55077451/13723015
 RUN echo "LC_ALL=en_US.UTF-8" >> /etc/environment \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
@@ -73,6 +78,3 @@ RUN su ${USERNAME} --command \
     && nvm install "${NODE_VERSION}" \
     && nvm alias default "${NODE_VERSION}" \
     && nvm use default'
-
-RUN su ${USERNAME} --command \
-    'git config --global --add safe.directory "/home/${USERNAME}/workspace"'
