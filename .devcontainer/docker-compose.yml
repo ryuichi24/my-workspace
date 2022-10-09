@@ -12,6 +12,10 @@ services:
         USER_GID: ${USER_GID:-1000}
         TMP_PKG: ${TMP_PKG}
         TIME_ZONE: ${TIME_ZONE:-Asia/Tokyo}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.10.5}
+        JAVA_VERSION: ${JAVA_VERSION:-17.0.4-amzn}
+        GRADLE_VERSION: ${GRADLE_VERSION:-7.5}
+        NODE_VERSION: ${NODE_VERSION:-v18.7.0}
     tty: true
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
@@ -31,6 +35,7 @@ services:
   postgres:
     container_name: ${PROJECT_NAME:-default}-postgres-container
     image: postgres:10
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
@@ -42,11 +47,11 @@ services:
     networks:
       - internal
       - external
-    restart: unless-stopped
+    
 
   pgadmin4:
     container_name: ${PROJECT_NAME:-default}-pgadmin-container
-    restart: always
+    restart: unless-stopped
     image: dpage/pgadmin4:6.12
     # https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html#environment-variables
     environment:
@@ -64,7 +69,7 @@ services:
 
   mysql:
     container_name: ${PROJECT_NAME:-default}-mysql-container
-    restart: always
+    restart: unless-stopped
     image: mysql:8.0
     command: --default-authentication-plugin=mysql_native_password
     ports:
@@ -84,6 +89,7 @@ services:
   rabbitMQ:
     image: rabbitmq:3.9.13-management-alpine
     container_name: ${PROJECT_NAME:-default}-rabbitMQ-container
+    restart: unless-stopped
     ports:
       - 5672:5672
       - 15672:15672
@@ -101,6 +107,7 @@ services:
   nginx:
     build:
       context: ./docker/nginx
+    restart: unless-stopped
     container_name: ${PROJECT_NAME:-default}-nginx-container
     ports:
       - 3333:80

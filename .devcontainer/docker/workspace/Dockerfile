@@ -40,7 +40,7 @@ ARG PYENV_DEP="make build-essential libssl-dev zlib1g-dev \
     libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python3-openssl"
 
 # default python version
-ARG PYTHON_VERSION=3.10.5
+ARG PYTHON_VERSION
 
 ENV PYENV_ROOT=${HOME}/.pyenv
 
@@ -60,8 +60,8 @@ RUN apt-get install -y --no-install-recommends ${PYENV_DEP} \
 
 # ---------------------------------- sdkman ----------------------------------
 # https://sdkman.io/install
-ARG JAVA_VERSION=18.0.2-amzn
-ARG GRADLE_VERSION="7.5"
+ARG JAVA_VERSION
+ARG GRADLE_VERSION
 
 RUN su ${USERNAME} --command \
     'curl -s "https://get.sdkman.io" | bash \
@@ -70,7 +70,7 @@ RUN su ${USERNAME} --command \
     && sdk install gradle ${GRADLE_VERSION}'
 
 # ---------------------------------- nvm ----------------------------------
-ARG NODE_VERSION=v18.7.0
+ARG NODE_VERSION
 
 RUN su ${USERNAME} --command \
     'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash \
