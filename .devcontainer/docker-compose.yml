@@ -41,13 +41,12 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-thisIsReallyStrongPassword123}
       POSTGRES_DB: ${DB_NAME:-dev}
     volumes:
-      - ../.docker/postgres:/var/lib/postgresql/data/
+      - ./.docker/postgres:/var/lib/postgresql/data/
     ports:
       - ${DB_PORT:-5432}:5432
     networks:
       - internal
       - external
-    
 
   pgadmin4:
     container_name: ${PROJECT_NAME:-default}-pgadmin-container
@@ -58,7 +57,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin@example.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-password}
     volumes:
-      - ../.docker/pgamin4_data:/var/lib/pgadmin
+      - ./.docker/pgamin4_data:/var/lib/pgadmin
     ports:
       - 8888:80
     networks:
@@ -66,6 +65,39 @@ services:
       - external
     depends_on:
       - postgres
+
+  mongodb:
+    image: mongo:6.0
+    restart: unless-stopped
+    container_name: ${PROJECT_NAME:-default}-mongodb-container
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER:-dbuser}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD:-thisIsReallyStrongPassword123}
+    ports:
+      - 27017:27017
+    volumes:
+      - ./.docker/mongodb:/data/db
+    networks:
+      - internal
+      - external
+
+  mongo-express:
+    image: mongo-express:1.0.0-alpha.4
+    container_name: ${PROJECT_NAME:-default}-mongo-express-container
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${DB_USER:-dbuser}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${DB_PASSWORD:-thisIsReallyStrongPassword123}
+      ME_CONFIG_MONGODB_SERVER: ${DB_HOST:-mongodb}
+      ME_CONFIG_MONGODB_PORT: ${DB_PORT:-27017}
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: ${ME_CONFIG_MONGODB_ENABLE_ADMIN:-true}
+    depends_on:
+      - mongodb
+    networks:
+      - internal
+      - external
 
   mysql:
     container_name: ${PROJECT_NAME:-default}-mysql-container
@@ -76,7 +108,7 @@ services:
       - ${DB_PORT:-3306}:3306
     volumes:
       # - ./docker/mysql/init-tables.sql:/docker-entrypoint-initdb.d/init-tables.sql
-      - ../.docker/mysql_data:/var/lib/mysql
+      - ./.docker/mysql_data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-thisIsReallyStrongPassword123}
       MYSQL_DATABASE: ${DB_NAME:-dev}
@@ -94,8 +126,8 @@ services:
       - 5672:5672
       - 15672:15672
     volumes:
-      - ../.docker/rabbitmqdata:/var/lib/rabbitmq
-      - ../.docker/rabbitmqlog:/var/log/rabbitmq
+      - ./.docker/rabbitmqdata:/var/lib/rabbitmq
+      - ./.docker/rabbitmqlog:/var/log/rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-rabbitmq}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-rabbitmq}
